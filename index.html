@@ -1,124 +1,78 @@
-<!DOCTYPE html>
-<html lang="ar">
+<!DOCTYPE html><html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crash Analyzer PRO</title>
-
-<style>
+<title>Crash Analyzer PRO</title><style>
 body {
-  background: #0b1220;
-  color: white;
-  font-family: Arial;
-  text-align: center;
+  background:#0b1220;
+  color:white;
+  font-family:Arial;
+  text-align:center;
 }
 
 h1 {
-  margin-top: 20px;
+  margin-top:20px;
+}
+
+.input-box {
+  margin:20px;
 }
 
 input {
-  padding: 12px;
-  width: 60%;
-  border-radius: 8px;
-  border: none;
-  margin: 10px;
+  padding:12px;
+  width:60%;
+  border-radius:10px;
+  border:none;
 }
 
 button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 8px;
-  margin: 5px;
-  cursor: pointer;
-  font-weight: bold;
+  padding:10px 15px;
+  border:none;
+  border-radius:10px;
+  margin:5px;
+  font-weight:bold;
 }
 
-.add { background: #1f6feb; color: white; }
-.analyze { background: #22c55e; color: white; }
-.clear { background: red; color: white; }
+.add { background:#2563eb; color:white; }
+.analyze { background:#16a34a; color:white; }
+.clear { background:#dc2626; color:white; }
 
 #numbers {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 15px;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin:20px;
 }
 
 .box {
-  padding: 10px;
-  margin: 5px;
-  border-radius: 8px;
-  min-width: 50px;
+  padding:10px 15px;
+  border-radius:10px;
+  min-width:60px;
 }
 
 .result-box {
-  margin-top: 20px;
-  padding: 20px;
-  border-radius: 15px;
-  background: #111827;
+  background:#111827;
+  padding:20px;
+  border-radius:15px;
+  margin:20px;
 }
 
-.big {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 10px;
-}
-
-.target {
-  background: #1f2937;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
-.stats {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 15px;
-}
-
-.stat {
-  background: #1f2937;
-  padding: 10px;
-  border-radius: 10px;
-  width: 30%;
-}
-</style>
-</head>
-
-<body>
-
-<h1>🚀 Crash Analyzer PRO</h1>
-
-<input id="input" placeholder="أدخل رقم">
-<button class="add" onclick="addNumber()">Add</button>
-<button class="analyze" onclick="analyze()">Analyze</button>
-<button class="clear" onclick="clearAll()">Clear</button>
-
-<div id="numbers"></div>
-
-<div class="result-box">
-  <div id="result" class="big">--</div>
-  <div id="target" class="target">--</div>
-
-  <div class="stats">
-    <div class="stat">
-      <div>📊 المتوسط</div>
-      <div id="avg">--</div>
-    </div>
-    <div class="stat">
-      <div>📈 أعلى رقم</div>
-      <div id="max">--</div>
-    </div>
-    <div class="stat">
-      <div>📉 أقل رقم</div>
-      <div id="min">--</div>
-    </div>
+</style></head><body><h1>🚀 Crash Analyzer PRO</h1><div class="input-box">
+  <input id="input" placeholder="أدخل رقم">
+  <button class="add" onclick="addNumber()">Add</button>
+</div><div>
+  <button class="analyze" onclick="analyze()">Analyze</button>
+  <button class="clear" onclick="clearAll()">Clear</button>
+</div><div id="numbers"></div><div class="result-box">
+  <h2 id="result">--</h2>
+  <p id="target">--</p>  <div style="display:flex; justify-content:space-around; margin-top:15px;">
+    <div>📊 المتوسط<br><span id="avg">--</span></div>
+    <div>📈 أعلى رقم<br><span id="max">--</span></div>
+    <div>📉 أقل رقم<br><span id="min">--</span></div>
   </div>
-</div>
+</div><script>
 
-<script>
 let numbers = [];
 
 function addNumber() {
@@ -128,18 +82,12 @@ function addNumber() {
   if (!val) return;
 
   numbers.push(val);
-
   if (numbers.length > 18) numbers.shift();
 
   renderNumbers();
-  input.value = "";
-}
+  calcStats();
 
-function clearAll() {
-  numbers = [];
-  renderNumbers();
-  document.getElementById("result").innerText = "--";
-  document.getElementById("target").innerText = "--";
+  input.value = "";
 }
 
 function renderNumbers() {
@@ -148,26 +96,40 @@ function renderNumbers() {
 
   numbers.forEach(n => {
     let color = "#1f6feb";
-
     if (n >= 2 && n < 5) color = "green";
     if (n >= 5) color = "orange";
     if (n > 10) color = "red";
 
     container.innerHTML += `<div class="box" style="background:${color}">${n}</div>`;
   });
+}
 
-  if (numbers.length > 0) {
-    document.getElementById("avg").innerText =
-      (numbers.reduce((a,b)=>a+b,0)/numbers.length).toFixed(2);
+function calcStats() {
+  if (numbers.length === 0) return;
 
-    document.getElementById("max").innerText = Math.max(...numbers);
-    document.getElementById("min").innerText = Math.min(...numbers);
-  }
+  const avg = (numbers.reduce((a,b)=>a+b,0)/numbers.length).toFixed(2);
+  const max = Math.max(...numbers);
+  const min = Math.min(...numbers);
+
+  document.getElementById("avg").innerText = avg;
+  document.getElementById("max").innerText = max;
+  document.getElementById("min").innerText = min;
+}
+
+function clearAll() {
+  numbers = [];
+  renderNumbers();
+  document.getElementById("result").innerText = "--";
+  document.getElementById("target").innerText = "--";
+  document.getElementById("avg").innerText = "--";
+  document.getElementById("max").innerText = "--";
+  document.getElementById("min").innerText = "--";
 }
 
 async function analyze() {
   if (numbers.length < 5) {
     document.getElementById("result").innerText = "❗ محتاج داتا أكتر";
+    document.getElementById("target").innerText = "-";
     return;
   }
 
@@ -185,11 +147,11 @@ async function analyze() {
     document.getElementById("result").innerText = data.result;
     document.getElementById("target").innerText = data.target;
 
-  } catch (err) {
+  } catch (e) {
     document.getElementById("result").innerText = "❌ Error في الاتصال";
+    document.getElementById("target").innerText = "--";
   }
 }
-</script>
 
-</body>
+</script></body>
 </html>
