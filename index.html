@@ -1,28 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Crash Analyzer</title>
-</head>
+async function run() {
+  const input = document.getElementById("input").value;
+  const data = input.split(",").map(Number);
 
-<body style="background:#0b0f1a;color:white;text-align:center;font-family:sans-serif">
+  const res = await fetch("https://crash-analyzer-production.up.railway.app/analyze", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
 
-  <h2>🚀 Crash Analyzer</h2>
+  const result = await res.json();
 
-  <input id="input" placeholder="1.2, 2.3, 1.8..." style="width:300px;padding:10px"/>
-  <br><br>
+  document.getElementById("result").innerText = result.result;
+}
+  const input = document.getElementById("input").value;
+  const data = input.split(",").map(Number);
 
-  <button onclick="run()" style="padding:10px 20px">Analyze</button>
+  const res = await fetch("https://crash-analyzer-production.up.railway.app/analyze", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
 
-  <h3 id="result"></h3>
+  const result = await res.json();
 
-  <script>
-    function run() {
-      const input = document.getElementById("input").value;
-      const data = input.split(",").map(Number);
-
-      document.getElementById("result").innerText = "شغال... (هنربطه بعدين)";
-    }
-  </script>
-
-</body>
-</html>
+  document.getElementById("result").innerText = result.result;
+}
