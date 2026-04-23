@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# ✅ حل المشكلة هنا
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,28 +12,46 @@ app.add_middleware(
 )
 
 def analyze(data):
-    last = data[-20:]
+    if len(data) < 10:
+        return {"result": "❗ محتاج داتا أكتر"}
 
-    def classify(x):
-        if x < 2:
-            return "LOW"
-        elif x < 5:
-            return "MEDIUM"
-        return "HIGH"
+    last18 = data[-18:]
+    last5 = data[-5:]
 
-    classes = [classify(x) for x in last]
+    low = [x for x in last18 if x < 2]
+    mid = [x for x in last18 if 2 <= x < 5]
+    high = [x for x in last18 if x >= 5]
 
-    if classes[-3:] == ["LOW", "LOW", "LOW"]:
-        return {"result": "🔥 High"}
+    result = ""
 
-    if "HIGH" in classes[-2:]:
-        return {"result": "⚠️ Low"}
+    # 🔥 موجة
+    if len([x for x in last5 if x < 2]) >= 4:
+        result = "🔥 موجة صعود جاية"
 
-    return {"result": "🤔 Wait"}
+    elif len([x for x in last5 if x >= 5]) >= 3:
+        result = "⚠️ خطر Crash"
 
-@app.get("/")
-def home():
-    return {"msg": "API شغال 🔥"}
+    else:
+        result = "🤔 السوق متقلب"
+
+    # 🎯 رينج
+    max_val = max(last18)
+
+    if max_val >= 10:
+        target = "🎯 5x - 7x"
+    elif max_val >= 5:
+        target = "🎯 3x - 5x"
+    else:
+        target = "🎯 1.5x - 3x"
+
+    # 🧠 ثقة القرار
+    confidence = round((len(low)/18)*100)
+
+    return {
+        "result": result,
+        "target": target,
+        "confidence": f"📊 ثقة: {confidence}%"
+    }
 
 @app.post("/analyze")
 def run(data: list[float]):
