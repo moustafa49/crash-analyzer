@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>🚀 Crash Analyzer PRO</title>
+
   <style>
     body {
       background: #0b0f1a;
@@ -16,7 +17,7 @@
 
     input {
       padding: 10px;
-      width: 200px;
+      width: 250px;
       font-size: 16px;
     }
 
@@ -41,9 +42,9 @@
     .high { background: #e67e22; }
     .mega { background: red; }
 
-    .result-box {
+    #result {
       margin-top: 20px;
-      font-size: 20px;
+      font-size: 22px;
     }
   </style>
 </head>
@@ -52,19 +53,19 @@
 
 <h1>🚀 Crash Analyzer PRO</h1>
 
-<input id="input" placeholder="ادخل رقم">
-<button onclick="add()">Add</button>
+<input id="bulk" placeholder="1.2, 2.3, 1.8, 3.5">
+<br>
+<button onclick="loadData()">Load</button>
 <button onclick="analyze()">Analyze</button>
 
 <div id="history"></div>
 
-<div class="result-box">
-  <div id="result"></div>
-  <div id="target"></div>
-  <div id="confidence"></div>
-</div>
+<div id="result"></div>
+<div id="target"></div>
+<div id="confidence"></div>
 
 <script>
+
 let data = [];
 
 function getClass(x){
@@ -74,25 +75,28 @@ function getClass(x){
   return "mega";
 }
 
-function add(){
-  let val = parseFloat(document.getElementById("input").value);
-  if(!val) return;
+function loadData(){
+  let text = document.getElementById("bulk").value;
 
-  data.push(val);
+  data = text.split(",")
+             .map(x => parseFloat(x.trim()))
+             .filter(x => x);
 
-  let div = document.createElement("div");
-  div.className = "box " + getClass(val);
-  div.innerText = val;
+  document.getElementById("history").innerHTML = "";
 
-  document.getElementById("history").prepend(div);
-
-  document.getElementById("input").value = "";
+  data.forEach(val => {
+    let div = document.createElement("div");
+    div.className = "box " + getClass(val);
+    div.innerText = val;
+    document.getElementById("history").prepend(div);
+  });
 }
 
 async function analyze(){
+
   document.getElementById("result").innerText = "⏳ جاري التحليل...";
 
-  try{
+  try {
     const res = await fetch("https://crash-analyzer-production.up.railway.app/analyze", {
       method: "POST",
       headers: {
@@ -107,10 +111,11 @@ async function analyze(){
     document.getElementById("target").innerText = "🎯 " + r.target;
     document.getElementById("confidence").innerText = "📊 " + r.confidence;
 
-  } catch(e){
+  } catch (e) {
     document.getElementById("result").innerText = "❌ Error: " + e;
   }
 }
+
 </script>
 
 </body>
