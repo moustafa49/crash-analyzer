@@ -1,6 +1,16 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# ✅ حل المشكلة هنا
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def analyze(data):
     last = data[-20:]
@@ -14,13 +24,13 @@ def analyze(data):
 
     classes = [classify(x) for x in last]
 
-    if classes[-3:] == ["LOW","LOW","LOW"]:
-        return {"result": "🔥 High قريب"}
+    if classes[-3:] == ["LOW", "LOW", "LOW"]:
+        return {"result": "🔥 High"}
 
     if "HIGH" in classes[-2:]:
-        return {"result": "⚠️ Low جاي"}
+        return {"result": "⚠️ Low"}
 
-    return {"result": "😐 العب على 2x"}
+    return {"result": "🤔 Wait"}
 
 @app.get("/")
 def home():
