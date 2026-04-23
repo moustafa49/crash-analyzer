@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-  <title>🚀 Crash Analyzer PRO</title>
+  <meta charset="UTF-8">
+  <title>Crash Analyzer PRO</title>
 
   <style>
     body {
-      background: #0b0f1a;
+      background: #0b1320;
       color: white;
       text-align: center;
       font-family: Arial;
@@ -17,15 +18,21 @@
 
     input {
       padding: 10px;
-      width: 250px;
-      font-size: 16px;
+      width: 200px;
+      border-radius: 5px;
+      border: none;
     }
 
     button {
-      padding: 10px 15px;
+      padding: 10px;
       margin: 5px;
-      font-size: 16px;
       cursor: pointer;
+      border-radius: 5px;
+      border: none;
+    }
+
+    #numbers {
+      margin-top: 20px;
     }
 
     .box {
@@ -33,87 +40,101 @@
       padding: 10px;
       margin: 5px;
       border-radius: 10px;
-      min-width: 60px;
+      color: white;
       font-weight: bold;
     }
 
-    .low { background: #3498db; }
-    .mid { background: #2ecc71; }
-    .high { background: #e67e22; }
-    .mega { background: red; }
-
     #result {
-      margin-top: 20px;
-      font-size: 22px;
+      margin-top: 30px;
+      font-size: 24px;
+    }
+
+    #target {
+      font-size: 20px;
+      color: violet;
+    }
+
+    #confidence {
+      font-size: 18px;
+      color: lightgreen;
     }
   </style>
 </head>
 
 <body>
 
-<h1>🚀 Crash Analyzer PRO</h1>
+  <h1>🚀 Crash Analyzer PRO</h1>
 
-<input id="bulk" placeholder="1.2, 2.3, 1.8, 3.5">
-<br>
-<button onclick="loadData()">Load</button>
-<button onclick="analyze()">Analyze</button>
+  <input id="input" placeholder="ادخل رقم">
+  <button onclick="addNumber()">Add</button>
+  <button onclick="analyze()">Analyze</button>
 
-<div id="history"></div>
+  <div id="numbers"></div>
 
-<div id="result"></div>
-<div id="target"></div>
-<div id="confidence"></div>
+  <h2 id="result"></h2>
+  <h3 id="target"></h3>
+  <h4 id="confidence"></h4>
 
 <script>
 
-let data = [];
+let numbers = [];
 
-function getClass(x){
-  if(x < 2) return "low";
-  if(x < 5) return "mid";
-  if(x < 10) return "high";
-  return "mega";
+function addNumber() {
+  const input = document.getElementById("input");
+  const val = parseFloat(input.value);
+
+  if (!val) return;
+
+  numbers.push(val);
+
+  if (numbers.length > 18) numbers.shift();
+
+  renderNumbers();
+  input.value = "";
 }
 
-function loadData(){
-  let text = document.getElementById("bulk").value;
+function renderNumbers() {
+  const container = document.getElementById("numbers");
+  container.innerHTML = "";
 
-  data = text.split(",")
-             .map(x => parseFloat(x.trim()))
-             .filter(x => x);
+  numbers.forEach(n => {
+    let color = "#1f6feb";
 
-  document.getElementById("history").innerHTML = "";
+    if (n >= 2 && n < 5) color = "green";
+    if (n >= 5) color = "orange";
+    if (n > 10) color = "red";
 
-  data.forEach(val => {
-    let div = document.createElement("div");
-    div.className = "box " + getClass(val);
-    div.innerText = val;
-    document.getElementById("history").prepend(div);
+    container.innerHTML += `<div class="box" style="background:${color}">${n}</div>`;
   });
 }
 
-async function analyze(){
-
-  document.getElementById("result").innerText = "⏳ جاري التحليل...";
-
-  try {
-    const res = await fetch("https://crash-analyzer-production.up.railway.app/analyze", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    });
-
-    const r = await res.json();
-
-    document.getElementById("result").innerText = r.result;
-    document.getElementById("target").innerText = "🎯 " + r.target;
-    document.getElementById("confidence").innerText = "📊 " + r.confidence;
-
-  } catch (e) {
-    document.getElementById("result").innerText = "❌ Error: " + e;
+function analyze() {
+  if (numbers.length < 5) {
+    document.getElementById("result").innerText = "❗ محتاج داتا أكتر";
+    return;
   }
+
+  const last = numbers.slice(-10);
+  const avg = last.reduce((a, b) => a + b, 0) / last.length;
+
+  let result = "";
+  let target = "";
+  let confidence = Math.min(95, Math.round(avg * 15));
+
+  if (avg < 2) {
+    result = "📉 ضعيف";
+    target = "1x → 2x";
+  } else if (avg < 5) {
+    result = "⚖️ متوسط";
+    target = "2x → 5x";
+  } else {
+    result = "🔥 دخول قوي";
+    target = "5x → 7x";
+  }
+
+  document.getElementById("result").innerText = result;
+  document.getElementById("target").innerText = target;
+  document.getElementById("confidence").innerText = confidence + "%";
 }
 
 </script>
