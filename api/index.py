@@ -12,11 +12,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/api")
+@app.get("/")
 def home():
     return {"msg": "API شغال 🔥"}
 
-@app.post("/api/analyze")
+@app.post("/analyze")
 def analyze(data: List[float]):
     if len(data) < 5:
         return {"result": "❗ محتاج داتا أكتر", "target": "--"}
