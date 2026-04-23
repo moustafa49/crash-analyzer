@@ -1,74 +1,114 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Crash PRO</title>
+  <title>🚀 Crash Analyzer PRO</title>
+  <style>
+    body {
+      background: #0b0f1a;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    input {
+      padding: 10px;
+      width: 200px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .box {
+      display: inline-block;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 10px;
+      min-width: 60px;
+      font-weight: bold;
+    }
+
+    .low { background: #3498db; }
+    .mid { background: #2ecc71; }
+    .high { background: #e67e22; }
+    .mega { background: red; }
+
+    .result-box {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+  </style>
 </head>
 
-<body style="background:#0b0f1a;color:white;text-align:center">
+<body>
 
-<h2>🚀 Crash Analyzer PRO</h2>
+<h1>🚀 Crash Analyzer PRO</h1>
 
-<input id="input" placeholder="اضف رقم" style="padding:10px">
+<input id="input" placeholder="ادخل رقم">
 <button onclick="add()">Add</button>
+<button onclick="analyze()">Analyze</button>
 
-<div id="history" style="margin:20px;display:flex;flex-wrap:wrap;justify-content:center"></div>
+<div id="history"></div>
 
-<h3 id="result"></h3>
-<h4 id="target"></h4>
-<h4 id="confidence"></h4>
+<div class="result-box">
+  <div id="result"></div>
+  <div id="target"></div>
+  <div id="confidence"></div>
+</div>
 
 <script>
 let data = [];
+
+function getClass(x){
+  if(x < 2) return "low";
+  if(x < 5) return "mid";
+  if(x < 10) return "high";
+  return "mega";
+}
 
 function add(){
   let val = parseFloat(document.getElementById("input").value);
   if(!val) return;
 
   data.push(val);
-  if(data.length > 18) data.shift();
+
+  let div = document.createElement("div");
+  div.className = "box " + getClass(val);
+  div.innerText = val;
+
+  document.getElementById("history").prepend(div);
 
   document.getElementById("input").value = "";
-
-  render();
-  run();
 }
 
-function render(){
-  let box = document.getElementById("history");
-  box.innerHTML = "";
+async function analyze(){
+  document.getElementById("result").innerText = "⏳ جاري التحليل...";
 
-  data.forEach(x=>{
-    let color = "#3498db";
-
-    if(x>=2 && x<5) color="green";
-    if(x>=5 && x<10) color="orange";
-    if(x>=10) color="red";
-
-    box.innerHTML += `<div style="
-      background:${color};
-      margin:5px;
-      padding:10px;
-      border-radius:8px;
-      width:60px">${x}</div>`;
-  });
-}
-
-async function run(){
   try{
-    const res = await fetch("https://crash-analyzer-production.up.railway.app/analyze",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(data)
+    const res = await fetch("https://crash-analyzer-production.up.railway.app/analyze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
     });
 
     const r = await res.json();
 
     document.getElementById("result").innerText = r.result;
-    document.getElementById("target").innerText = r.target;
-    document.getElementById("confidence").innerText = r.confidence;
+    document.getElementById("target").innerText = "🎯 " + r.target;
+    document.getElementById("confidence").innerText = "📊 " + r.confidence;
 
-  }catch(e){
-    document.getElementById("result").innerText = "❌ Error";
+  } catch(e){
+    document.getElementById("result").innerText = "❌ Error: " + e;
   }
 }
 </script>
