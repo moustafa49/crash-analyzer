@@ -1,157 +1,173 @@
-<!DOCTYPE html><html lang="ar">
+<!DOCTYPE html>
+<html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crash Analyzer PRO</title><style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Crash Analyzer PRO</title>
+
+<style>
 body {
-  background:#0b1220;
-  color:white;
-  font-family:Arial;
-  text-align:center;
+  margin: 0;
+  font-family: Arial;
+  background: #0b1b2b;
+  color: #fff;
+  text-align: center;
+}
+
+.container {
+  padding: 20px;
 }
 
 h1 {
-  margin-top:20px;
-}
-
-.input-box {
-  margin:20px;
+  margin-top: 20px;
 }
 
 input {
-  padding:12px;
-  width:60%;
-  border-radius:10px;
-  border:none;
+  width: 60%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  margin-right: 10px;
 }
 
 button {
-  padding:10px 15px;
-  border:none;
-  border-radius:10px;
-  margin:5px;
-  font-weight:bold;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 5px;
+  font-weight: bold;
 }
 
-.add { background:#2563eb; color:white; }
-.analyze { background:#16a34a; color:white; }
-.clear { background:#dc2626; color:white; }
+.add { background: #3b82f6; color: #fff; }
+.analyze { background: #22c55e; color: #fff; }
+.clear { background: #ef4444; color: #fff; }
 
-#numbers {
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:10px;
-  margin:20px;
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-.box {
-  padding:10px 15px;
-  border-radius:10px;
-  min-width:60px;
+.item {
+  margin: 5px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-weight: bold;
 }
+
+.green { background: #16a34a; }
+.blue { background: #2563eb; }
+.orange { background: #f59e0b; }
+.red { background: #dc2626; }
 
 .result-box {
-  background:#111827;
-  padding:20px;
-  border-radius:15px;
-  margin:20px;
+  margin-top: 30px;
+  padding: 20px;
+  border-radius: 15px;
+  background: #12263a;
 }
 
-</style></head><body><h1>🚀 Crash Analyzer PRO</h1><div class="input-box">
-  <input id="input" placeholder="أدخل رقم">
-  <button class="add" onclick="addNumber()">Add</button>
-</div><div>
-  <button class="analyze" onclick="analyze()">Analyze</button>
-  <button class="clear" onclick="clearAll()">Clear</button>
-</div><div id="numbers"></div><div class="result-box">
-  <h2 id="result">--</h2>
-  <p id="target">--</p>  <div style="display:flex; justify-content:space-around; margin-top:15px;">
-    <div>📊 المتوسط<br><span id="avg">--</span></div>
-    <div>📈 أعلى رقم<br><span id="max">--</span></div>
-    <div>📉 أقل رقم<br><span id="min">--</span></div>
-  </div>
-</div><script>
+.stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+}
+</style>
+</head>
 
-let numbers = [];
+<body>
+<div class="container">
+
+<h1>🚀 Crash Analyzer PRO</h1>
+
+<input id="input" type="number" placeholder="أدخل رقم" />
+<button class="add" onclick="addNumber()">Add</button>
+
+<br/>
+
+<button class="analyze" onclick="analyze()">Analyze</button>
+<button class="clear" onclick="clearData()">Clear</button>
+
+<div class="grid" id="grid"></div>
+
+<div class="result-box">
+  <h2 id="result">--</h2>
+  <div id="target">--</div>
+
+  <div class="stats">
+    <div>📊 المتوسط: <span id="avg">--</span></div>
+    <div>📈 أعلى: <span id="max">--</span></div>
+    <div>📉 أقل: <span id="min">--</span></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let data = [];
 
 function addNumber() {
   const input = document.getElementById("input");
-  const val = parseFloat(input.value);
+  const value = parseFloat(input.value);
 
-  if (!val) return;
+  if (!value) return;
 
-  numbers.push(val);
-  if (numbers.length > 18) numbers.shift();
-
-  renderNumbers();
-  calcStats();
-
+  data.push(value);
   input.value = "";
+  render();
 }
 
-function renderNumbers() {
-  const container = document.getElementById("numbers");
-  container.innerHTML = "";
+function getColor(num) {
+  if (num >= 10) return "red";
+  if (num >= 5) return "orange";
+  if (num >= 2) return "green";
+  return "blue";
+}
 
-  numbers.forEach(n => {
-    let color = "#1f6feb";
-    if (n >= 2 && n < 5) color = "green";
-    if (n >= 5) color = "orange";
-    if (n > 10) color = "red";
+function render() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
 
-    container.innerHTML += `<div class="box" style="background:${color}">${n}</div>`;
+  data.slice(-18).forEach(num => {
+    const div = document.createElement("div");
+    div.className = "item " + getColor(num);
+    div.innerText = num;
+    grid.appendChild(div);
   });
 }
 
-function calcStats() {
-  if (numbers.length === 0) return;
-
-  const avg = (numbers.reduce((a,b)=>a+b,0)/numbers.length).toFixed(2);
-  const max = Math.max(...numbers);
-  const min = Math.min(...numbers);
-
-  document.getElementById("avg").innerText = avg;
-  document.getElementById("max").innerText = max;
-  document.getElementById("min").innerText = min;
-}
-
-function clearAll() {
-  numbers = [];
-  renderNumbers();
+function clearData() {
+  data = [];
+  render();
   document.getElementById("result").innerText = "--";
   document.getElementById("target").innerText = "--";
-  document.getElementById("avg").innerText = "--";
-  document.getElementById("max").innerText = "--";
-  document.getElementById("min").innerText = "--";
 }
 
 async function analyze() {
-  if (numbers.length < 5) {
-    document.getElementById("result").innerText = "❗ محتاج داتا أكتر";
-    document.getElementById("target").innerText = "-";
-    return;
-  }
-
   try {
     const res = await fetch("/api/analyze", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(numbers)
+      body: JSON.stringify(data)
     });
 
-    const data = await res.json();
+    const result = await res.json();
 
-    document.getElementById("result").innerText = data.result;
-    document.getElementById("target").innerText = data.target;
+    document.getElementById("result").innerText = result.result;
+    document.getElementById("target").innerText = result.target;
+    document.getElementById("avg").innerText = result.avg;
+    document.getElementById("max").innerText = result.max;
+    document.getElementById("min").innerText = result.min;
 
-  } catch (e) {
-    document.getElementById("result").innerText = "❌ Error في الاتصال";
-    document.getElementById("target").innerText = "--";
+  } catch (err) {
+    document.getElementById("result").innerText = "❌ Error";
   }
 }
+</script>
 
-</script></body>
+</body>
 </html>
