@@ -14,13 +14,13 @@ app.add_middleware(
 
 @app.get("/api")
 def home():
-    return {"msg": "API شغال 🔥"}
+    return {"msg": "API working"}
 
 @app.post("/api/analyze")
 def analyze(data: List[float]):
     if len(data) < 5:
         return {
-            "result": "❌ محتاج بيانات أكتر",
+            "result": "Need more data",
             "target": "--",
             "confidence": "0%"
         }
@@ -31,20 +31,20 @@ def analyze(data: List[float]):
     high_count = len([x for x in data if x > 2])
 
     if avg > 3 or max_val > 10:
-        result = "🔥 دخول قوي"
-        target = "5x → 7x"
+        result = "Strong Entry"
+        target = "5x - 7x"
         confidence = "80%"
-        trend = "صاعد"
+        trend = "UP"
     elif avg > 2:
-        result = "⚖️ متوسط"
-        target = "2x → 5x"
+        result = "Medium"
+        target = "2x - 5x"
         confidence = "60%"
-        trend = "متوازن"
+        trend = "Stable"
     else:
-        result = "📉 ضعيف"
-        target = "1x → 2x"
+        result = "Weak"
+        target = "1x - 2x"
         confidence = "40%"
-        trend = "هابط"
+        trend = "Down"
 
     return {
         "result": result,
