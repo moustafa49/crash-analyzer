@@ -1,31 +1,38 @@
-async function run() {
-  const input = document.getElementById("input").value;
-  const data = input.split(",").map(Number);
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Crash Analyzer</title>
+</head>
 
-  const res = await fetch("https://crash-analyzer-production.up.railway.app/analyze", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
+<body style="background:#0b0f1a;color:white;text-align:center;padding-top:50px;">
 
-  const result = await res.json();
+  <h2>🚀 Crash Analyzer</h2>
 
-  document.getElementById("result").innerText = result.result;
-}
-  const input = document.getElementById("input").value;
-  const data = input.split(",").map(Number);
+  <input id="input" placeholder="1.2, 2.3, 1.8..." style="padding:10px;width:250px;">
+  <br><br>
 
-  const res = await fetch("https://crash-analyzer-production.up.railway.app/analyze", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
+  <button onclick="run()" style="padding:10px 20px;">Analyze</button>
 
-  const result = await res.json();
+  <h3 id="result"></h3>
 
-  document.getElementById("result").innerText = result.result;
-}
+  <script>
+    async function run() {
+      const input = document.getElementById("input").value;
+      const data = input.split(",").map(Number);
+
+      const res = await fetch("https://crash-analyzer-production.up.railway.app/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      document.getElementById("result").innerText = result.result;
+    }
+  </script>
+
+</body>
+</html>
