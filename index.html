@@ -1,92 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Crash Analyzer PRO</title>
+<title>Crash PRO</title>
 </head>
 
-<body style="background:#0b0f1a;color:white;text-align:center;font-family:sans-serif">
+<body style="background:#0b0f1a;color:white;text-align:center">
 
-  <h2>🚀 Crash Analyzer</h2>
+<h2>🚀 Crash Analyzer PRO</h2>
 
-  <!-- INPUT -->
-  <input id="input" placeholder="1.2,2.3,1.8..." style="width:80%;padding:10px">
+<input id="input" placeholder="اضف رقم" style="padding:10px">
+<button onclick="add()">Add</button>
 
-  <br><br>
+<div id="history" style="margin:20px;display:flex;flex-wrap:wrap;justify-content:center"></div>
 
-  <button onclick="run()" style="padding:10px 20px">Analyze</button>
-
-  <h3 id="result"></h3>
-
-  <!-- LAST 18 BOXES -->
-  <div id="history" style="margin-top:20px;display:flex;flex-wrap:wrap;justify-content:center"></div>
+<h3 id="result"></h3>
+<h4 id="target"></h4>
+<h4 id="confidence"></h4>
 
 <script>
-let history = [];
+let data = [];
 
-function addToHistory(data){
-  history = data.slice(-18); // اخر 18
-  renderHistory();
+function add(){
+  let val = parseFloat(document.getElementById("input").value);
+  if(!val) return;
+
+  data.push(val);
+  if(data.length > 18) data.shift();
+
+  document.getElementById("input").value = "";
+
+  render();
+  run();
 }
 
-function renderHistory(){
-  const box = document.getElementById("history");
+function render(){
+  let box = document.getElementById("history");
   box.innerHTML = "";
 
-  history.forEach(x=>{
+  data.forEach(x=>{
     let color = "#3498db";
 
-    if(x >= 2 && x < 5) color = "green";
-    if(x >= 5) color = "orange";
-    if(x >= 10) color = "red";
+    if(x>=2 && x<5) color="green";
+    if(x>=5 && x<10) color="orange";
+    if(x>=10) color="red";
 
-    box.innerHTML += `
-      <div style="
-        background:${color};
-        margin:5px;
-        padding:10px;
-        border-radius:8px;
-        width:60px">
-        ${x}
-      </div>
-    `;
+    box.innerHTML += `<div style="
+      background:${color};
+      margin:5px;
+      padding:10px;
+      border-radius:8px;
+      width:60px">${x}</div>`;
   });
 }
 
 async function run(){
-  const input = document.getElementById("input").value;
-  const data = input.split(",").map(Number);
+  try{
+    const res = await fetch("https://crash-analyzer-production.up.railway.app/analyze",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(data)
+    });
 
-  addToHistory(data);
+    const r = await res.json();
 
-  // تحليل محلي (مش محتاج Python دلوقتي)
-  const last5 = data.slice(-5);
+    document.getElementById("result").innerText = r.result;
+    document.getElementById("target").innerText = r.target;
+    document.getElementById("confidence").innerText = r.confidence;
 
-  let low = last5.filter(x=>x<2).length;
-  let high = last5.filter(x=>x>=2).length;
-
-  let result = "";
-
-  if(low >= 4){
-    result = "🔥 دخول قوي → Target: 2x - 3x";
+  }catch(e){
+    document.getElementById("result").innerText = "❌ Error";
   }
-  else if(high >= 4){
-    result = "⚠️ خطر → استنى";
-  }
-  else if(last5[last5.length-1] > 5){
-    result = "⚠️ طلعة عالية → غالبًا Crash";
-  }
-  else{
-    result = "🤔 دخول خفيف → Target: 1.5x - 2x";
-  }
-
-  // 🔥 توقع رينج كبير
-  let max = Math.max(...last5);
-
-  if(max > 10){
-    result += "<br>🎯 ممكن توصل 5x - 7x";
-  }
-
-  document.getElementById("result").innerHTML = result;
 }
 </script>
 
